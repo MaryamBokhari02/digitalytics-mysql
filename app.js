@@ -52,7 +52,13 @@ app.get("/", (req, res) => {
 });
 
 //Mailing function
-const mail = async (name, email, subject, message, html = false) => {
+const mail = async (
+  email,
+  subject,
+  name = null,
+  message = null,
+  html = false
+) => {
   try {
     var smtpConfig = {
       host: "smtp.gmail.com",
@@ -71,7 +77,10 @@ const mail = async (name, email, subject, message, html = false) => {
       from: process.env.MAILING_ACCOUNT, // sender address
       to: process.env.MAILING_TO_ACCOUNT, // list of receivers
       subject: subject, // Subject line
-      text: `Name: ${name}, Email: ${email}, Message: ${message}`, //, // plaintext body
+      text:
+        name === null
+          ? `Email: ${email}`
+          : `Name: ${name}, Email: ${email}, Message: ${message}`, //, // plaintext body
       html: html === false ? null : html, // You can choose to send an HTML body instead
     };
 
@@ -92,7 +101,7 @@ const mail = async (name, email, subject, message, html = false) => {
 //Forum
 app.post("/contacts", (req, res) => {
   if (
-    mail(req.body.name, req.body.email, "Form Submittion", req.body.message)
+    mail(req.body.email, "Form Submittion", req.body.name, req.body.message)
   ) {
     pool.getConnection((err, connection) => {
       if (err) throw err;
