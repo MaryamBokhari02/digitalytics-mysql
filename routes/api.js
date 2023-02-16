@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const mysql = require("mysql");
 const nodemailer = require("nodemailer");
+const sgMail = require("@sendgrid/mail");
 
 router.get("/", (req, res) => {
   res.send({ status: true, message: "API WORKING!" });
@@ -36,7 +37,12 @@ pool.getConnection((err, connection, res) => {
   });
 });
 
+//Mail API KEY - SEND GRID
+const SENDGRID_API_KEY =
+  "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";
 //Mailing function
+sgMail.setApiKey(SENDGRID_API_KEY);
+
 const mail = async (
   email,
   subject,
@@ -44,43 +50,21 @@ const mail = async (
   message = null,
   html = false
 ) => {
-  try {
-    var smtpConfig = {
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true, // use SSL
-      auth: {
-        user: process.env.MAILING_ACCOUNT,
-        pass: process.env.MAILING_PASSWORD,
-      },
-    };
-
-    var transporter = nodemailer.createTransport(smtpConfig);
-    // replace hardcoded options with data passed (somedata)
-    var mailOptions = {
-      from: process.env.MAILING_ACCOUNT, // sender address
-      to: process.env.MAILING_TO_ACCOUNT, // list of receivers
-      subject: subject, // Subject line
-      text:
-        name === null
-          ? `Email: ${email}`
-          : `Name: ${name}, Email: ${email}, Message: ${message}`, //, // plaintext body
-      html: html === false ? null : html, // You can choose to send an HTML body instead
-    };
-
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log(error);
-        return false;
-      } else {
-        res.send({ status: true, message: "Message sent successfully!" });
-        console.log("Message sent: " + info.response);
-        return true;
-      }
+  let emailBody = {
+    to: "wali585858@gmail.com",
+    from: "waliamedvd@gmail.com",
+    subject: subject,
+    text:
+      name === null
+        ? `Email: ${email}`
+        : `Name: ${name}, Email: ${email}, Message: ${message}`,
+  };
+  sgMail
+    .send(emailBody)
+    .then((response) => console.log(response))
+    .catch((e) => {
+      console.log(e.message);
     });
-  } catch (error) {
-    console.error(error);
-  }
 };
 
 //Forum
