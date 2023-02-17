@@ -48,7 +48,8 @@ const mail = async (
   subject,
   name = null,
   message = null,
-  html = false
+  html = false,
+  phone_number = false
 ) => {
   let emailBody = {
     to: "wali585858@gmail.com",
@@ -57,7 +58,7 @@ const mail = async (
     text:
       name === null
         ? `Email: ${email}`
-        : `Name: ${name}, Email: ${email}, Message: ${message}`,
+        : `Name: ${name}, Email: ${email}, Message: ${message}, Phone: ${phone_number}`,
   };
   sgMail
     .send(emailBody)
@@ -70,7 +71,13 @@ const mail = async (
 //Forum
 router.post("/contacts", (req, res) => {
   if (
-    mail(req.body.email, "Form Submittion", req.body.name, req.body.message)
+    mail(
+      req.body.email,
+      "Form Submittion",
+      req.body.name,
+      req.body.message,
+      req.body.phone_number
+    )
   ) {
     pool.getConnection((err, connection) => {
       if (err) throw err;
